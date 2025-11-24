@@ -1,0 +1,25 @@
+/* Wrapper controls the full page background */
+.about-wrapper {
+  min-height: 100vh;
+  background-color: #fff0f8 ; /* light pink*/
+  padding: 40px;
+}
+
+/* Inner card styles */
+.about-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  line-height: 1.6;
+  font-size: 18px;
+  background-color: #f5f5f9; /* light grey */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+
+.about-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ff69b4;
+}

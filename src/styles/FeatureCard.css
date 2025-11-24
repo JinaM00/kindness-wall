@@ -1,0 +1,26 @@
+.feature-card {
+  width: 250px;
+  padding: 20px;
+  margin: 10px;
+  background-color: #fffafc; /* soft pastel background */
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.feature-card h3 {
+  color: #ff69b4; /* pink accent */
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.feature-card p {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+}
