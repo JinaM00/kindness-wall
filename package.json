@@ -2,7 +2,7 @@
   
   "engines": {
     "node": "18"
-  }
+  },
 
   "name": "kindness-wall",
   "version": "0.1.0",
