@@ -1,0 +1,77 @@
+/* src/styles/Signup.css */
+
+/* Page container */
+.signup-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #ffe6f0; /* 🌸 light pink background */
+}
+
+/* Form box */
+.signup-form {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 320px;
+  text-align: center;
+}
+
+/* Heading */
+.signup-form h2 {
+  margin-bottom: 1.5rem;
+  color: #cc3366; /* deep pink heading */
+  font-size: 1.6rem;
+}
+
+/* Inputs */
+.signup-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #ffb6c1; /* soft pink border */
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+/* Button */
+.signup-form button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #ff6699; /* 🌸 pink button */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+.signup-form button:hover {
+  background: #e05588; /* darker pink on hover */
+}
+
+/* Status or error messages */
+.signup-form p {
+  margin-top: 1rem;
+  color: #666666;
+  font-size: 0.9rem;
+}
+
+.signup-form .error {
+  color: red;
+  font-size: 0.9rem;
+}
+
+/* Link to login */
+.signup-form span {
+  color: #cc3366; /* deep pink link */
+  cursor: pointer;
+  text-decoration: underline;
+}
+.signup-form span:hover {
+  color: #a82c55;
+}

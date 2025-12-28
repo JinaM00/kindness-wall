@@ -1,36 +1,54 @@
+// src/components/MessageForm.jsx
 import React, { useState } from "react";
+import "../styles/MessageForm.css";
 
 function MessageForm({ onAdd }) {
-  const [form, setForm] = useState({ text: "", mood: "Joy" });
+  const [text, setText] = useState("");
+  const [mood, setMood] = useState("joy");
+  const [image, setImage] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.text.trim()) return;
-    onAdd(form);
-    setForm({ text: "", mood: "Joy" });
+    onAdd({ text, mood, image });
+    setText("");
+    setMood("joy");
+    setImage(null);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="message-form">
+    <form className="message-form-simple" onSubmit={handleSubmit}>
       <textarea
-        name="text"
-        rows="3"
-        placeholder="Write a kind note… 😊"
-        value={form.text}
-        onChange={handleChange}
+        placeholder="Write your kindness note..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
       />
-      <select name="mood" value={form.mood} onChange={handleChange}>
-        <option>Joy</option>
-        <option>Gratitude</option>
-        <option>Hope</option>
+
+      <select value={mood} onChange={(e) => setMood(e.target.value)}>
+        <option value="joy">Joy</option>
+        <option value="gratitude">Gratitude</option>
+        <option value="hope">Hope</option>
       </select>
+
+      {/* 👇 Custom file upload box */}
+      <div className="file-upload">
+        <label htmlFor="fileInput" className="custom-file-label">
+          📎 Choose Image
+        </label>
+        <input
+          id="fileInput"
+          type="file"
+          className="file-input"
+          onChange={handleFileChange}
+        />
+      </div>
+
       <button type="submit">Post</button>
     </form>
   );
 }
+
 export default MessageForm;

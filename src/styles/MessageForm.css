@@ -1,0 +1,108 @@
+/* src/styles/MessageForm.css */
+.message-form-simple {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px;
+}
+
+.message-form-simple input,
+.message-form-simple select,
+.message-form-simple button {
+  margin-top: 12px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px; /* pill shape */
+  background: linear-gradient(90deg, #fbcfe8, #ffd6e7); /* soft pink gradient */
+  color: #81133f; /* deep berry text */
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(251, 207, 232, 0.4);
+}
+
+.message-form-simple button:hover {
+  background: linear-gradient(90deg, #ffd6e7, #fbcfe8); /* reverse gradient */
+  transform: translateY(-2px); /* subtle lift */
+  box-shadow: 0 6px 10px rgba(251, 207, 232, 0.6); /* stronger glow */
+}
+
+.message-form-simple button:active {
+  transform: translateY(0); /* press down effect */
+  box-shadow: 0 3px 6px rgba(251, 207, 232, 0.5);
+}
+.message-form-simple button {
+  background-color: #f9c5d1;
+  border: none;
+  cursor: pointer;
+}
+.message-form-simple textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #fce7f3; /* ultra-light pink border */
+  background-color: #fffafc;  /* very very light pink background */
+  font-family: "Poppins", sans-serif;
+  font-size: 0.95rem;
+  color: #333;
+  resize: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.message-form-simple textarea:focus {
+  outline: none;
+  border-color: #fbcfe8; /* slightly stronger pink on focus */
+  box-shadow: 0 0 8px rgba(251, 207, 232, 0.6); /* soft glow */
+}
+
+/* Dropdown styling */
+.message-form-simple select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 2px solid #fce7f3;
+  background-color: #fffafc;  /* very very light pink background */
+  font-family: "Poppins", sans-serif;
+  font-size: 0.95rem;
+  color: #81133f; /* deep berry text for contrast */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.message-form-simple select:hover {
+  background-color: #fdf2f8; /* slightly deeper pink hover */
+}
+
+.message-form-simple select:focus {
+  outline: none;
+  border-color: #fbcfe8;
+  box-shadow: 0 0 8px rgba(251, 207, 232, 0.6);
+}
+.file-upload {
+  margin: 12px 0;
+  text-align: center; /* centers the box */
+}
+
+.file-input {
+  display: none; /* hide the native input */
+}
+
+.custom-file-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #fff0f6; /* pastel pink background */
+  border: 2px dashed #ffd6e7; /* dashed border for box feel */
+  border-radius: 10px;
+  color: #b03060; /* rose text */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-file-label:hover {
+  background-color: #ffe4ec; /* brighter pink hover */
+  box-shadow: 0 0 10px rgba(255, 182, 193, 0.6); /* glowing effect */
+}

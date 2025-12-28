@@ -1,0 +1,26 @@
+/* src/styles/MessageCard.css */
+.message-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 16px;
+  margin: 12px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.message-image {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.message-text {
+  font-size: 1.1em;
+  margin: 8px 0;
+}
+
+.message-mood {
+  font-style: italic;
+  color: #666;
+}

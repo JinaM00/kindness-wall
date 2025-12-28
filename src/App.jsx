@@ -1,5 +1,4 @@
 // src/App.jsx
-// src/App.jsx
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar";
@@ -9,38 +8,43 @@ import About from "./pages/About";
 import Features from "./pages/Features";
 import Wall from "./pages/Wall";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import AddMessage from "./AddMessage";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [auth, setAuth] = useState(null);
 
   // ✅ Load user from localStorage when app starts
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(savedUser);
+    const savedAuth = localStorage.getItem("auth");
+    if (savedAuth) {
+      setAuth(JSON.parse(savedAuth)); // stored as { id, username, email }
     }
   }, []);
 
-  const handleLogin = (email) => {
-    setUser(email);
-    localStorage.setItem("user", email); // ✅ save to localStorage
+  const handleLogin = (userObj) => {
+    // userObj should be { id, username, email } from backend
+    setAuth(userObj);
+    localStorage.setItem("auth", JSON.stringify(userObj));
   };
 
   const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem("user"); // ✅ clear from localStorage
+    setAuth(null);
+    localStorage.removeItem("auth");
   };
 
   return (
     <Router>
       <div className="App">
-        <NavBar user={user} onLogout={handleLogout} />
+        <NavBar auth={auth} onLogout={handleLogout} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/features" element={<Features />} />
-          <Route path="/wall" element={<Wall />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/wall" element={<Wall auth={auth} />} />
+          <Route path="/login" element={<Login setAuth={handleLogin} />} />
+          <Route path="/signup" element={<Signup setAuth={handleLogin} />} />
+          <Route path="/add" element={<AddMessage auth={auth} />} />
         </Routes>
         <Footer />
       </div>
@@ -49,37 +53,3 @@ function App() {
 }
 
 export default App;
-// import React, { useState } from "react";
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import NavBar from "./components/NavBar";
-// import Footer from "./components/Footer";
-// import Home from "./pages/Home";
-// import About from "./pages/About";
-// import Features from "./pages/Features";
-// import Wall from "./pages/Wall";
-// import Login from "./pages/Login";
-
-// function App() {
-//   const [user, setUser] = useState(null);
-
-//   const handleLogin = (email) => setUser(email);   // ✅ store email when logged in
-//   const handleLogout = () => setUser(null);        // ✅ clear user when logged out
-
-//   return (
-//     <Router>
-//       <div className="App">
-//         <NavBar user={user} onLogout={handleLogout} />
-//         <Routes>
-//           <Route path="/" element={<Home />} />
-//           <Route path="/about" element={<About />} />
-//           <Route path="/features" element={<Features />} />
-//           <Route path="/wall" element={<Wall />} />
-//           <Route path="/login" element={<Login onLogin={handleLogin} />} />
-//         </Routes>
-//         <Footer />
-//       </div>
-//     </Router>
-//   );
-// }
-
-// export default App;

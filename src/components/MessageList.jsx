@@ -1,12 +1,19 @@
+// src/components/MessageList.jsx
 import React from "react";
+import MessageCard from "./MessageCard";
 
-function MessageList({ items }) {
+function MessageList({ items, onRemove, onEdit }) {
   return (
     <div className="grid">
       {items.map(item => (
-        <div key={item.id} className={`new-note ${item.mood.toLowerCase()}`}>
-          {item.text}
-        </div>
+        <MessageCard
+          key={item.id}
+          id={item.id}
+          text={item.text}
+          mood={item.mood}
+          onRemove={onRemove}
+          onEdit={onEdit}
+        />
       ))}
     </div>
   );

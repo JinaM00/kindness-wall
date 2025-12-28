@@ -1,15 +1,41 @@
-/* Wrapper controls the full page background */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+.wall-title {
+  font-family: 'Pacifico', cursive; /* cute, handwritten style */
+  font-size: 2.2rem;
+  font-weight: 400;
+  text-align: center;
+  color: #81133f; /* deep berry tone */
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+
+  /* subtle glow effect */
+  text-shadow: 0 2px 4px rgba(251, 207, 232, 0.6);
+}
+/* Wrapper */
 .wall-wrapper {
   min-height: 100vh;
-  background-color: #fdf6f9;
-  padding: 60px 40px 40px; /* ✅ extra top padding pushes wall down */
+  background-image: url("../assets/background.jpg"); /* ✅ path to your image */
+  background-size: cover;       /* make it fill the screen */
+  background-position: center;  /* center the image */
+  background-repeat: no-repeat; /* no tiling */
+  padding: 60px 40px 40px;
+  padding-bottom: 80px; /* enough space so content doesn't overlap footer */
+
 }
 
-/* Inner card styles */
+.message-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+
+/* Inner card */
 .wall-page {
-  max-width: 1100px;   /* ✅ expanded width */
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 50px 30px;  /* ✅ slightly more padding inside */
+  padding: 50px 30px;
   text-align: center;
   background-color: #fff0f5;
   border-radius: 10px;
@@ -21,7 +47,7 @@
   margin-bottom: 20px;
 }
 
-/* Form styling */
+/* Form */
 .message-form {
   margin: 20px auto;
   max-width: 500px;
@@ -55,7 +81,7 @@
   background-color: #ff69b4;
 }
 
-/* Controls (filters + random uplift) */
+/* Controls */
 .controls {
   margin: 20px 0;
   display: flex;
@@ -77,7 +103,7 @@
   background-color: #ddd;
 }
 
-/* Grid of kindness notes */
+/* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -85,39 +111,85 @@
   margin-top: 20px;
 }
 
-/* ✅ Cartoon sticky note style */
-.grid div {
+/* Sticky note style — use .message-card instead of .grid div */
+.message-card {
   padding: 20px;
   border-radius: 12px;
   font-size: 16px;
   box-shadow: 4px 4px 8px rgba(0,0,0,0.1);
   text-align: left;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
-  transform: rotate(-0.5deg); /* playful tilt */
+  transform: rotate(-0.5deg);
 }
 
-.grid div:hover {
-  transform: rotate(0deg) scale(1.05); /* hover pop */
+.message-card:hover {
+  transform: rotate(0deg) scale(1.05);
   box-shadow: 6px 6px 12px rgba(0,0,0,0.15);
 }
 
-/* Category-specific colors */
-.joy {
+/* Category colors applied to the card */
+.message-card.joy {
   background-color: #e6e6fa; /* lilac */
   color: #4b0082;
 }
 
-.gratitude {
+.message-card.gratitude {
   background-color: #fae6ec; /* pink */
   color: #c71585;
 }
 
-.hope {
+.message-card.hope {
   background-color: #c5ebf8; /* blue */
   color: #003366;
 }
+/* Action buttons beneath each card */
+.note-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
 
-/* ✅ Pagination arrows */
+/* Shared button style */
+.note-actions button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Edit button = soft sky blue */
+.note-actions .edit-btn {
+  background-color: #87cefa; /* light sky blue */
+}
+
+.note-actions .edit-btn:hover {
+  background-color: #4682b4; /* darker blue */
+  transform: scale(1.05);
+}
+
+/* Remove button = kindness pink */
+.note-actions .remove-btn {
+  background-color: #ffb6c1; /* light pink */
+}
+.note-actions .remove-btn:hover {
+  background-color: #ff69b4; /* darker pink */
+  transform: scale(1.05);
+}
+
+/* Remove = pink */
+.note-actions button:last-child {
+  background-color: #ffb6c1;
+}
+.note-actions button:last-child:hover {
+  background-color: #ff69b4;
+  transform: scale(1.05);
+}
+
+/* Pagination */
 .pagination {
   margin-top: 20px;
   display: flex;
@@ -144,21 +216,22 @@
   background-color: #ddd;
   cursor: not-allowed;
 }
-/* Pop-up note style */
+
+/* Popup note */
 .popup-note {
   position: fixed;
-  top: 30px;      /* ✅ place at the top */
-  right: 30px;    /* stays in the top-right corner */
+  top: 30px;
+  right: 30px;
   max-width: 250px;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 4px 4px 12px rgba(0,0,0,0.2);
   font-size: 16px;
   animation: bounceIn 0.6s ease forwards;
-  z-index: 9999;  /* ✅ ensures it floats above navbar/footer */
+  z-index: 9999;
 }
 
-/* Close button */
+/* Close button for popup */
 .popup-note button {
   margin-top: 10px;
   background: none;
@@ -172,7 +245,7 @@
   color: #ff69b4;
 }
 
-/* Reuse category colors */
+/* Popup category colors */
 .popup-note.joy {
   background-color: #e6e6fa;
   color: #4b0082;
@@ -186,6 +259,144 @@
 .popup-note.hope {
   background-color: #c5ebf8;
   color: #003366;
+}
+/* src/styles/Wall.css */
+.wall-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* center alignment */
+  gap: 1rem; /* spacing between notes */
+  padding: 1rem;
+}
+
+/* Message card layout */
+.message-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.1);
+  background: #fff0f5;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+  max-width: 260px;   /* neat grid width */
+}
+
+/* Smaller thumbnail image */
+.message-image {
+  width: 100%;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center; /* center the thumbnail */
+}
+
+.message-image img {
+  max-width: 80%;     /* smaller than full card width */
+  max-height: 100px;  /* limit height so it doesn’t dominate */
+  height: auto;       /* keep full image ratio */
+  object-fit: contain; /* show entire image, no cropping */
+  border-radius: 6px;
+  display: block;
+}
+
+
+
+/* Text clamp for consistency */
+.message-text {
+  flex-grow: 1;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;   /* show max 4 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Base mood text */
+.message-mood {
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+/* Medium-dark shades for each mood */
+.message-card.joy .message-mood {
+  color: #55308d; /* slightly darker indigo for lilac background */
+}
+
+.message-card.gratitude .message-mood {
+  color: #a63d75; /* medium rose-magenta for pink background */
+}
+
+.message-card.hope .message-mood {
+  color: #226699; /* medium teal-blue for sky background */
+}
+.message-username {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #374151;           /* elegant dark gray text */
+  margin-bottom: 6px;
+  text-transform: capitalize;
+  position: relative;
+  display: inline-block;
+  padding: 2px 6px;
+}
+
+.message-username {
+  font-style: italic;          /* signature-like feel */
+  font-weight: 550;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  display: inline-block;
+  border-bottom: 2px solid #fbcfe8; /* pastel pink underline */
+  padding-bottom: 2px;
+  letter-spacing: 0.3px;       /* subtle spacing for elegance */
+
+  /* Gradient text color */
+  background: linear-gradient(90deg, #881844, #d3628a, #f195ca);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text; /* for Firefox */
+}
+.filter-bar {
+  margin: 16px 0;
+  display: flex;
+  justify-content: center;   /* centers horizontally */
+  align-items: center;       /* aligns label + dropdown vertically */
+  gap: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.filter-bar label {
+  font-weight: 600;
+  color: #b03060; /* deep rose tone */
+}
+
+.filter-bar select {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #ffd6e7; /* soft pink border */
+  background-color: #fff0f6; /* pastel pink background */
+  color: #b03060;            /* rose text */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+/* ✨ New hover effect */
+.filter-bar select:hover {
+  background: linear-gradient(90deg, #ffe4ec, #fbcfe8); /* soft pink gradient */
+  border-color: #ffb6c1; /* brighter pink border */
+  box-shadow: 0 0 10px rgba(255, 182, 193, 0.7); /* glowing pink aura */
+  transform: scale(1.03); /* subtle lift */
+}
+
+.filter-bar select:focus {
+  outline: none;
+  border-color: #ff65a3; /* vivid pink focus */
+  box-shadow: 0 0 8px rgba(255, 182, 193, 0.8);
 }
 
 /* Animation */
