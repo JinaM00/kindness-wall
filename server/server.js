@@ -341,24 +341,22 @@ app.get("/liftup/random", async (req, res) => {
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
-
+ 
 // ⚠️ TEMPORARY ROUTE — remove after running once
-app.get("/fix-messages-schema", async (req, res) => {
+app.get("/fix-messages-userid", async (req, res) => {
   try {
-    // Step 1: Make sure user_id is INT
-    await db.query("ALTER TABLE messages MODIFY user_id INT NULL");
+    // Step 1: Backfill NULL user_id values with existing user id=3
+    await db.query("UPDATE messages SET user_id = 3 WHERE user_id IS NULL");
 
-    // Step 2: Add foreign key constraint to users.id
-    await db.query(
-      "ALTER TABLE messages ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)"
-    );
+    // Step 2: Add foreign key constraint
+    await db.query(`
+      ALTER TABLE messages
+      ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
+    `);
 
-    // Step 3: Backfill existing NULL values with a valid user id (e.g., 1)
-    await db.query("UPDATE messages SET user_id = 1 WHERE user_id IS NULL");
-
-    res.json({ success: true, message: "Messages schema fixed successfully" });
+    res.json({ success: true, message: "Messages user_id fixed and FK added" });
   } catch (err) {
-    console.error("❌ Messages schema fix error:", err);
+    console.error("❌ Fix messages error:", err);
     res.status(500).json({ error: "Schema fix failed", details: err.message });
   }
 });
