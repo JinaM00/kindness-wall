@@ -14,20 +14,22 @@ import AddMessage from "./AddMessage";
 function App() {
   const [auth, setAuth] = useState(null);
 
-  // ✅ Load user from localStorage when app starts
+  // ✅ Load auth (token + user) from localStorage when app starts
   useEffect(() => {
     const savedAuth = localStorage.getItem("auth");
     if (savedAuth) {
-      setAuth(JSON.parse(savedAuth)); // stored as { id, username, email }
+      setAuth(JSON.parse(savedAuth)); // stored as { token, user }
     }
   }, []);
 
-  const handleLogin = (userObj) => {
-    // userObj should be { id, username, email } from backend
-    setAuth(userObj);
-    localStorage.setItem("auth", JSON.stringify(userObj));
+  // ✅ Handle login: store token + user together
+  const handleLogin = (authData) => {
+    // authData should be { token, user } from backend
+    setAuth(authData);
+    localStorage.setItem("auth", JSON.stringify(authData));
   };
 
+  // ✅ Handle logout: clear state + localStorage
   const handleLogout = () => {
     setAuth(null);
     localStorage.removeItem("auth");

@@ -97,18 +97,27 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-    if (rows.length === 0) return res.status(401).json({ error: "Invalid credentials" });
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
     const user = rows[0];
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ error: "Invalid credentials" });
+    if (!match) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
 
+    // ✅ Include id + username in JWT payload
     const token = jwt.sign(
       { id: user.id, username: user.username },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" } // optional expiry
     );
+
+    // ✅ Return both token and user object
     res.json({ token, user });
   } catch (err) {
+    console.error("❌ Login error:", err);
     res.status(500).json({ error: "DB error", details: err.message });
   }
 });
@@ -135,15 +144,54 @@ app.post("/messages", upload.single("image"), async (req, res) => {
   const image = req.file ? req.file.filename : null;
 
   const authHeader = req.headers["authorization"];
-  if (!authHeader) return res.status(401).json({ error: "Missing Authorization header" });
+  if (!authHeader) {
+    return res.status(401).json({ error: "Missing Authorization header" });
+  }
 
   const token = authHeader.split(" ")[1];
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid token: missing user ID" });
+    }
+
+    // ✅ Let MySQL auto-fill created_at (requires schema fix)
+   // Post a new message
+app.post("/messages", upload.single("image"), async (req, res) => {
+  const { text, mood } = req.body;
+  const image = req.file ? req.file.filename : null;
+
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res.status(401).json({ error: "Missing Authorization header" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid token: missing user ID" });
+    }
+
+    // ✅ Insert without created_at (MySQL auto-fills CURRENT_TIMESTAMP)
     const [result] = await db.query(
-      "INSERT INTO messages (user_id, text, mood, image, created_at) VALUES (?,?,?,?,NOW())",
+      "INSERT INTO messages (user_id, text, mood, image) VALUES (?,?,?,?)",
+      [userId, text, mood, image]
+    );
+
+    res.json({ success: true, id: result.insertId });
+  } catch (err) {
+    console.error("❌ Message error:", err);
+    res.status(500).json({ error: "Database error", details: err.message });
+  }
+}); const [result] = await db.query(
+      "INSERT INTO messages (user_id, text, mood, image) VALUES (?,?,?,?)",
       [userId, text, mood, image]
     );
 
@@ -153,7 +201,6 @@ app.post("/messages", upload.single("image"), async (req, res) => {
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
-
 
 let currentPrompt = null;
 
@@ -201,6 +248,39 @@ app.get("/liftup/random", async (req, res) => {
   }
 });
 
+// Temporary route to fix schema
+app.get("/fix-image-null", async (req, res) => {
+  try {
+    await db.query(`
+      ALTER TABLE messages 
+      MODIFY image VARCHAR(255) NULL
+    `);
+    res.json({ success: true, message: "✅ Image column now allows NULL" });
+  } catch (err) {
+    console.error("❌ Schema fix error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Temporary route to fix schema
+app.get("/fix-schema", async (req, res) => {
+  try {
+    await db.query(`
+      ALTER TABLE messages 
+      MODIFY created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    `);
+
+    await db.query(`
+      ALTER TABLE messages 
+      MODIFY image VARCHAR(255) NULL
+    `);
+
+    res.json({ success: true, message: "Schema fixed ✅" });
+  } catch (err) {
+    console.error("❌ Schema fix error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 

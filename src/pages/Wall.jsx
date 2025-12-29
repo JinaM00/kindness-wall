@@ -4,6 +4,7 @@ import axios from "axios";
 import MessageForm from "../components/MessageForm";
 import MessageCard from "../components/MessageCard";
 import "../styles/wall.css";
+
 // Use environment variable if available, fallback to Render URL
 const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
@@ -14,19 +15,18 @@ function Wall({ auth }) {
   const [filter, setFilter] = useState("");
   const pageSize = 8;
 
-  // ✅ Wrap fetchMessages in useCallback
+  // ✅ Fetch messages
   const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
       const url = filter
-      ? `${API_URL}/messages/category/${filter}`
-      : `${API_URL}/messages`;
-
+        ? `${API_URL}/messages/category/${filter}`
+        : `${API_URL}/messages`;
 
       const res = await axios.get(url);
       setMessages((res.data || []).filter(Boolean));
     } catch (err) {
-      console.error("❌ Error fetching messages:", err);
+      console.error("❌ Error fetching messages:", err.response?.data || err);
     } finally {
       setLoading(false);
     }
@@ -34,56 +34,69 @@ function Wall({ auth }) {
 
   useEffect(() => {
     fetchMessages();
-  }, [fetchMessages]); // ✅ now safe
+  }, [fetchMessages]);
 
-  // Add a new message
-const addMessage = async ({ text, mood, image }) => {
-  if (!auth || !auth.token) {
-    console.error("❌ No auth token available");
-    return;
-  }
+  // ✅ Add a new message
+  const addMessage = async ({ text, mood, image }) => {
+    if (!auth || !auth.token) {
+      console.error("❌ No auth token available");
+      return;
+    }
 
-  const formData = new FormData();
-  formData.append("text", text);
-  formData.append("mood", mood);
-  if (image) formData.append("image", image);
+    const formData = new FormData();
+    formData.append("text", text);
+    formData.append("mood", mood);
+    if (image) formData.append("image", image);
 
-  try {
-    await axios.post(`${API_URL}/messages`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${auth.token}`, // ✅ send JWT
-      },
-    });
-
-    fetchMessages();
-    setPage(1);
-  } catch (err) {
-    console.error("❌ Error adding message:", err.response?.data || err);
-  }
-};
-
-  // Remove a message
-  const removeMessage = async (id) => {
     try {
-      await axios.delete(`${API_URL}/messages/${id}`);
+      await axios.post(`${API_URL}/messages`, formData, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`, // ✅ send JWT
+        },
+      });
+
+      fetchMessages();
+      setPage(1);
+    } catch (err) {
+      console.error("❌ Error adding message:", err.response?.data || err);
+    }
+  };
+
+  // ✅ Remove a message
+  const removeMessage = async (id) => {
+    if (!auth || !auth.token) {
+      console.error("❌ No auth token available");
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/messages/${id}`, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
       fetchMessages();
     } catch (err) {
       console.error("❌ Error removing message:", err.response?.data || err);
     }
   };
 
-  // Edit a message
+  // ✅ Edit a message
   const editMessage = async (id, updatedMsg) => {
+    if (!auth || !auth.token) {
+      console.error("❌ No auth token available");
+      return;
+    }
+
     try {
-     await axios.put(`${API_URL}/messages/${id}`, updatedMsg);
+      await axios.put(`${API_URL}/messages/${id}`, updatedMsg, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
       fetchMessages();
     } catch (err) {
       console.error("❌ Error editing message:", err.response?.data || err);
     }
   };
 
-  // Pagination
+  // ✅ Pagination
   const total = messages.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const startIndex = (page - 1) * pageSize;

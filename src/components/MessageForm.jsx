@@ -13,10 +13,21 @@ function MessageForm({ onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!text.trim()) {
+      alert("Please enter a kindness note before posting.");
+      return;
+    }
+
     onAdd({ text, mood, image });
+
+    // ✅ Reset form
     setText("");
     setMood("joy");
     setImage(null);
+
+    // ✅ Clear file input
+    document.getElementById("fileInput").value = "";
   };
 
   return (
@@ -42,6 +53,7 @@ function MessageForm({ onAdd }) {
           id="fileInput"
           type="file"
           className="file-input"
+          accept="image/*"
           onChange={handleFileChange}
         />
       </div>

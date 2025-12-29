@@ -4,14 +4,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
+// ✅ Base API URL (Render backend or environment variable)
+const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
 function Login({ setAuth }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  // ✅ Base API URL (Render backend or environment variable)
-  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,27 +21,22 @@ function Login({ setAuth }) {
       return;
     }
 
-    try {
-      // ✅ Use API_URL instead of localhost
-      const res = await axios.post(`${API_URL}/login`, {
-        email,
-        password,
-      });
+  try {
+  const res = await axios.post(`${API_URL}/login`, { email, password });
 
-      // Save token for authenticated requests
-      localStorage.setItem("token", res.data.token);
+  // ✅ Save token + user in auth state
+  const authData = { token: res.data.token, user: res.data.user };
+  setAuth(authData);
 
-      // Set auth state with user info
-      setAuth(res.data.user);
+  // ✅ Persist in localStorage so it survives refresh
+  localStorage.setItem("auth", JSON.stringify(authData));
 
-      // Redirect to Wall
-      navigate("/");
-    } catch (err) {
-      console.error("❌ Login error:", err.response?.data || err.message);
-
-      // Show backend error if available, else generic message
-      setError(err.response?.data?.error || "Wrong username or password");
-    }
+  // ✅ Redirect to Wall
+  navigate("/");
+  } catch (err) {
+  console.error("❌ Login error:", err.response?.data || err.message);
+  setError(err.response?.data?.error || "Wrong username or password");
+  }
   };
 
   return (
@@ -65,10 +60,8 @@ function Login({ setAuth }) {
 
         <button type="submit">Login</button>
 
-        {/* ✅ Error message above signup prompt */}
         {error && <p className="error">{error}</p>}
 
-        {/* ✅ Signup prompt always visible */}
         <p>
           Don’t have an account?{" "}
           <span
