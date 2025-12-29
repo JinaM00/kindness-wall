@@ -29,11 +29,12 @@ function App() {
     localStorage.setItem("auth", JSON.stringify(authData));
   };
 
-  // ✅ Handle logout: clear state + localStorage
-  const handleLogout = () => {
-    setAuth(null);
-    localStorage.removeItem("auth");
-  };
+// ✅ Handle logout: clear state + localStorage
+const handleLogout = () => {
+  setAuth(null);
+  localStorage.removeItem("auth");
+};
+  
 
   return (
     <Router>

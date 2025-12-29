@@ -25,10 +25,18 @@ function NavBar({ user, onLogout }) {
         <li><Link to="/about">About</Link></li>
         <li><Link to="/features">Features</Link></li>
         <li><Link to="/wall">Wall</Link></li>
+
         {!user ? (
           <li><Link to="/login">Login</Link></li>
         ) : (
-          <li><button className="logout-btn" onClick={onLogout}>Logout</button></li>
+          <>
+            <li className="welcome-text">
+              Welcome, {user.username || user.email} 🌸
+            </li>
+            <li>
+              <button className="logout-btn" onClick={onLogout}>Logout</button>
+            </li>
+          </>
         )}
       </ul>
     </nav>
