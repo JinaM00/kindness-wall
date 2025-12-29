@@ -11,37 +11,51 @@ const jwt = require("jsonwebtoken");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+
 const app = express();
 app.use(express.json());
 
-app.use(cors({
-  origin: [
-    "http://localhost:3000",                  // local dev
-    "https://kindness-wall.netlify.app"       // ✅ Netlify frontend
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],  // include all methods you use
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+/* -------------------- CORS -------------------- */
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",             // local dev
+      "https://kindness-wall.netlify.app", // Netlify frontend
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
+/* -------------------- Static images -------------------- */
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 
-// Serve uploaded images
-app.use("/images", express.static("images"));
+// Serve uploaded images under /uploads (matches frontend)
+app.use("/uploads", express.static(uploadsDir));
 
-// Ensure images folder exists
-if (!fs.existsSync("images")) fs.mkdirSync("images");
-
-// Multer storage
+/* -------------------- Multer -------------------- */
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "images/"),
+  destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext).replace(/\s+/g, "_");
+    const base = path
+      .basename(file.originalname, ext)
+      .replace(/\s+/g, "_")
+      .toLowerCase();
     cb(null, `${base}_${Date.now()}${ext}`);
   },
 });
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) cb(null, true);
+    else cb(new Error("Only image uploads are allowed"));
+  },
+});
 
-/* -------------------- INIT + DB -------------------- */
+/* -------------------- DB init -------------------- */
 let db;
 
 async function initDB() {
@@ -61,7 +75,7 @@ async function initDB() {
 }
 initDB();
 
-/* -------------------- AUTH -------------------- */
+/* -------------------- Auth -------------------- */
 // Signup
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
@@ -70,16 +84,27 @@ app.post("/signup", async (req, res) => {
     return res.status(400).json({ error: "All fields required" });
   }
   if (password.length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters long" });
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 6 characters long" });
   }
 
   try {
     const hashed = await bcrypt.hash(password, 10);
     const [result] = await db.query(
-    "INSERT INTO users (username, email, password, created_at) VALUES (?,?,?,NOW())",
-    [username, email, hashed]
+      "INSERT INTO users (username, email, password, created_at) VALUES (?,?,?,NOW())",
+      [username, email, hashed]
     );
-    res.json({ success: true, id: result.insertId });
+
+    // Optional: auto-login on signup
+    const safeUser = { id: result.insertId, username, email };
+    const token = jwt.sign(
+      { id: safeUser.id, username: safeUser.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.json({ success: true, id: result.insertId, token, user: safeUser });
   } catch (err) {
     console.error("❌ Signup error:", err);
     if (err.code === "ER_DUP_ENTRY" && err.sqlMessage.includes("email")) {
@@ -88,7 +113,9 @@ app.post("/signup", async (req, res) => {
     if (err.code === "ER_DUP_ENTRY" && err.sqlMessage.includes("username")) {
       return res.status(400).json({ error: "Username already taken" });
     }
-    return res.status(500).json({ error: "Database error", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Database error", details: err.message });
   }
 });
 
@@ -96,7 +123,9 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
-    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
     if (rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -107,31 +136,53 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // ✅ Include id + username in JWT payload
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } // optional expiry
+      { expiresIn: "1h" }
     );
 
-    // ✅ Return both token and user object
-    res.json({ token, user });
+    // Strip password before sending to client
+    const { password: _, ...safeUser } = user;
+    res.json({ token, user: safeUser });
   } catch (err) {
     console.error("❌ Login error:", err);
     res.status(500).json({ error: "DB error", details: err.message });
   }
 });
 
-/* -------------------- MESSAGES CRUD -------------------- */
-// Example: Get all messages
+/* -------------------- Messages CRUD -------------------- */
+// Get all messages
 app.get("/messages", async (req, res) => {
   try {
-    const [rows] = await db.query(`
+    const [rows] = await db.query(
+      `
       SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
       FROM messages m
       JOIN users u ON m.user_id = u.id
       ORDER BY m.created_at DESC
-    `);
+    `
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: "DB error", details: err.message });
+  }
+});
+
+// Get by category (expects lowercase: joy, gratitude, hope)
+app.get("/messages/category/:category", async (req, res) => {
+  const category = (req.params.category || "").toLowerCase();
+  try {
+    const [rows] = await db.query(
+      `
+      SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
+      FROM messages m
+      JOIN users u ON m.user_id = u.id
+      WHERE LOWER(m.mood) = ?
+      ORDER BY m.created_at DESC
+    `,
+      [category]
+    );
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: "DB error", details: err.message });
@@ -143,26 +194,10 @@ app.post("/messages", upload.single("image"), async (req, res) => {
   const { text, mood } = req.body;
   const image = req.file ? req.file.filename : null;
 
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ error: "Missing Authorization header" });
+  // Basic validation
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "Text is required" });
   }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: "Invalid token: missing user ID" });
-    }
-
-    // ✅ Let MySQL auto-fill created_at (requires schema fix)
-   // Post a new message
-app.post("/messages", upload.single("image"), async (req, res) => {
-  const { text, mood } = req.body;
-  const image = req.file ? req.file.filename : null;
 
   const authHeader = req.headers["authorization"];
   if (!authHeader) {
@@ -179,32 +214,101 @@ app.post("/messages", upload.single("image"), async (req, res) => {
       return res.status(401).json({ error: "Invalid token: missing user ID" });
     }
 
-    // ✅ Insert without created_at (MySQL auto-fills CURRENT_TIMESTAMP)
+    // Insert without created_at (DB auto-fills CURRENT_TIMESTAMP)
     const [result] = await db.query(
       "INSERT INTO messages (user_id, text, mood, image) VALUES (?,?,?,?)",
-      [userId, text, mood, image]
+      [userId, text.trim(), mood || null, image]
     );
 
     res.json({ success: true, id: result.insertId });
   } catch (err) {
     console.error("❌ Message error:", err);
-    res.status(500).json({ error: "Database error", details: err.message });
-  }
-}); const [result] = await db.query(
-      "INSERT INTO messages (user_id, text, mood, image) VALUES (?,?,?,?)",
-      [userId, text, mood, image]
-    );
-
-    res.json({ success: true, id: result.insertId });
-  } catch (err) {
-    console.error("❌ Message error:", err);
+    // Multer/file errors surface here too
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
 
+// Update a message (text/mood only; extend to image if needed)
+app.put("/messages/:id", async (req, res) => {
+  const id = req.params.id;
+  const { text, mood } = req.body;
+
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res.status(401).json({ error: "Missing Authorization header" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    // Ownership check (only author can edit)
+    const [rows] = await db.query("SELECT user_id FROM messages WHERE id = ?", [
+      id,
+    ]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+    if (rows[0].user_id !== userId) {
+      return res.status(403).json({ error: "Not allowed to edit this message" });
+    }
+
+    await db.query("UPDATE messages SET text = ?, mood = ? WHERE id = ?", [
+      text?.trim() || "",
+      mood || null,
+      id,
+    ]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Edit error:", err);
+    res.status(500).json({ error: "Database error", details: err.message });
+  }
+});
+
+// Delete a message
+app.delete("/messages/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res.status(401).json({ error: "Missing Authorization header" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const [rows] = await db.query("SELECT user_id, image FROM messages WHERE id = ?", [
+      id,
+    ]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+    if (rows[0].user_id !== userId) {
+      return res.status(403).json({ error: "Not allowed to delete this message" });
+    }
+
+    // Remove image file if present
+    if (rows[0].image) {
+      const filePath = path.join(uploadsDir, rows[0].image);
+      fs.existsSync(filePath) && fs.unlinkSync(filePath);
+    }
+
+    await db.query("DELETE FROM messages WHERE id = ?", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Delete error:", err);
+    res.status(500).json({ error: "Database error", details: err.message });
+  }
+});
+
+/* -------------------- Liftup prompts -------------------- */
 let currentPrompt = null;
 
-// Function to fetch a random prompt from DB
 async function updatePrompt() {
   try {
     const [rows] = await db.query(
@@ -218,38 +322,25 @@ async function updatePrompt() {
     console.error("❌ Error fetching prompt:", err);
   }
 }
-
-// Run every 15 seconds
 setInterval(updatePrompt, 15000);
 
-// Endpoint to get the current prompt
 app.get("/current_prompt", (req, res) => {
-  if (currentPrompt) {
-    res.json(currentPrompt);
-  } else {
-    res.json({ message: "No prompt yet" });
-  }
+  if (currentPrompt) res.json(currentPrompt);
+  else res.json({ message: "No prompt yet" });
 });
 
-// Add this in server.js
 app.get("/liftup/random", async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT id, text, emoji FROM liftup_messages ORDER BY RAND() LIMIT 1"
     );
-    if (rows.length > 0) {
-      res.json(rows[0]);
-    } else {
-      res.status(404).json({ error: "No featured kindness available" });
-    }
+    if (rows.length > 0) res.json(rows[0]);
+    else res.status(404).json({ error: "No featured kindness available" });
   } catch (err) {
     console.error("❌ Error fetching featured kindness:", err);
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
-
-
-// (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 
 /* -------------------- Start server -------------------- */
 const PORT = process.env.PORT || 5000;

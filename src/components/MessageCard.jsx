@@ -5,20 +5,27 @@ import "../styles/wall.css";
 function MessageCard({ msg, onEdit, onRemove, auth }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(msg.text || msg.content || "");
-  const [editMood, setEditMood] = useState(msg.mood || "");
+  const [editMood, setEditMood] = useState((msg.mood || "").toLowerCase());
 
-  const id = msg.id || msg.message_id;
-  const isOwner = auth && auth.id === msg.user_id; // 👈 check ownership
+  const id = msg.id ?? msg.message_id;
+  // ✅ auth stores { token, user }, so check auth.user.id
+  const isOwner = Boolean(auth?.user?.id) && auth.user.id === msg.user_id;
 
-  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+  // Match backend static route for images (ensure server serves /uploads)
+  const API_URL =
+    process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSave = () => {
+    if (!editText.trim()) return;
+    // Text-only update; if you want to support image change, switch to FormData in the parent
     onEdit(id, { ...msg, text: editText, mood: editMood });
     setIsEditing(false);
   };
 
+  const moodClass = (msg.mood || "").toLowerCase();
+
   return (
-    <div className={`message-card ${msg.mood?.toLowerCase()}`}>
+    <div className={`message-card ${moodClass}`}>
       {msg.username && (
         <p className="message-username">
           <strong>{msg.username}</strong>
@@ -40,7 +47,7 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
             <option value="hope">Hope</option>
           </select>
           <div className="note-actions">
-            <button className="edit-btn" onClick={handleSave}>
+            <button className="edit-btn" onClick={handleSave} disabled={!editText.trim()}>
               Save
             </button>
             <button className="remove-btn" onClick={() => setIsEditing(false)}>
@@ -53,7 +60,7 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
           {msg.image && (
             <div className="message-image">
               <img
-                src={`${API_URL}/images/${msg.image}`}
+                src={`${API_URL}/uploads/${msg.image}`}
                 alt="Kindness note"
               />
             </div>

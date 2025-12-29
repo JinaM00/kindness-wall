@@ -6,13 +6,15 @@ import MessageCard from "../components/MessageCard";
 import "../styles/wall.css";
 
 // Use environment variable if available, fallback to Render URL
-const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+const API_URL =
+  process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
 function Wall({ auth }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("");
+  const [postError, setPostError] = useState(""); // ✅ show backend errors
   const pageSize = 8;
 
   // ✅ Fetch messages
@@ -20,7 +22,7 @@ function Wall({ auth }) {
     try {
       setLoading(true);
       const url = filter
-        ? `${API_URL}/messages/category/${filter}`
+        ? `${API_URL}/messages/category/${filter.toLowerCase()}`
         : `${API_URL}/messages`;
 
       const res = await axios.get(url);
@@ -30,7 +32,7 @@ function Wall({ auth }) {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, API_URL]); // ✅ include API_URL
 
   useEffect(() => {
     fetchMessages();
@@ -39,7 +41,7 @@ function Wall({ auth }) {
   // ✅ Add a new message
   const addMessage = async ({ text, mood, image }) => {
     if (!auth || !auth.token) {
-      console.error("❌ No auth token available");
+      setPostError("❌ No auth token available");
       return;
     }
 
@@ -55,17 +57,19 @@ function Wall({ auth }) {
         },
       });
 
+      setPostError("");
       fetchMessages();
       setPage(1);
     } catch (err) {
       console.error("❌ Error adding message:", err.response?.data || err);
+      setPostError(err.response?.data?.error || "Failed to post message");
     }
   };
 
   // ✅ Remove a message
   const removeMessage = async (id) => {
     if (!auth || !auth.token) {
-      console.error("❌ No auth token available");
+      setPostError("❌ No auth token available");
       return;
     }
 
@@ -76,13 +80,14 @@ function Wall({ auth }) {
       fetchMessages();
     } catch (err) {
       console.error("❌ Error removing message:", err.response?.data || err);
+      setPostError(err.response?.data?.error || "Failed to remove message");
     }
   };
 
-  // ✅ Edit a message
+  // ✅ Edit a message (text-only; use FormData if editing image too)
   const editMessage = async (id, updatedMsg) => {
     if (!auth || !auth.token) {
-      console.error("❌ No auth token available");
+      setPostError("❌ No auth token available");
       return;
     }
 
@@ -93,6 +98,7 @@ function Wall({ auth }) {
       fetchMessages();
     } catch (err) {
       console.error("❌ Error editing message:", err.response?.data || err);
+      setPostError(err.response?.data?.error || "Failed to edit message");
     }
   };
 
@@ -107,6 +113,9 @@ function Wall({ auth }) {
       <div className="wall-page">
         <h2 className="wall-title">🌸 Kindness Wall 🌸</h2>
 
+        {/* ✅ Show error messages */}
+        {postError && <p className="error-text">{postError}</p>}
+
         <MessageForm onAdd={addMessage} />
 
         <div className="filter-bar">
@@ -120,9 +129,9 @@ function Wall({ auth }) {
             }}
           >
             <option value="">All</option>
-            <option value="Joy">Joy</option>
-            <option value="Gratitude">Gratitude</option>
-            <option value="Hope">Hope</option>
+            <option value="joy">Joy</option>
+            <option value="gratitude">Gratitude</option>
+            <option value="hope">Hope</option>
           </select>
         </div>
 
