@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log("🚀 Starting server.js...");
 // ✅ Database connection
 let db;
 (async () => {
