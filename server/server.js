@@ -28,13 +28,11 @@ app.use(
 );
 
 /* -------------------- Static images -------------------- */
-// Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+const imagesDir = path.join(__dirname, "images");
+if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir);
 
-// Serve uploaded images under /uploads (matches frontend)
-app.use("/uploads", express.static(uploadsDir));
-
+// Serve uploaded images under /images
+app.use("/images", express.static(imagesDir));
 /* -------------------- Multer -------------------- */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),

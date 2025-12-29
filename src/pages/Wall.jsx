@@ -27,10 +27,14 @@ function Wall({ auth }) {
 
       const res = await axios.get(url);
 
-      // Normalize image URLs so they point to backend
+      // Normalize image URLs so they point to backend /images
       const normalized = (res.data || []).filter(Boolean).map((msg) => ({
         ...msg,
-        image: msg.image ? `${API_URL}/uploads/${msg.image}` : null,
+        // If DB stores just filename (e.g. "photo.png")
+        image: msg.image ? `${API_URL}/images/${msg.image}` : null,
+
+        // If DB stores "/images/photo.png", use instead:
+        // image: msg.image ? `${API_URL}${msg.image}` : null,
       }));
 
       setMessages(normalized);

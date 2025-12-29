@@ -19,12 +19,22 @@ function MessageForm({ onAdd }) {
       return;
     }
 
+      const formData = new FormData();
+  formData.append("text", text);
+  formData.append("mood", mood);
+  if (image) {
+    formData.append("image", image); // ✅ attach file
+  }
+
+
     onAdd({ text, mood, image });
 
     // ✅ Reset form
     setText("");
     setMood("joy");
     setImage(null);
+    document.getElementById("fileInput").value = "";
+
 
     // ✅ Clear file input
     document.getElementById("fileInput").value = "";

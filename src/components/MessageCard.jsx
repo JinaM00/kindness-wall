@@ -11,13 +11,12 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
   // ✅ auth stores { token, user }, so check auth.user.id
   const isOwner = Boolean(auth?.user?.id) && auth.user.id === msg.user_id;
 
-  // Match backend static route for images
+  // Match backend static route for images (ensure server serves /images)
   const API_URL =
     process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSave = () => {
     if (!editText.trim()) return;
-    // Text-only update; if you want to support image change, switch to FormData in the parent
     onEdit(id, { ...msg, text: editText, mood: editMood });
     setIsEditing(false);
   };
@@ -66,9 +65,11 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
         <>
           {msg.image && (
             <div className="message-image">
-              {/* ✅ msg.image already includes `/uploads/...` from backend */}
               <img
-                src={`${API_URL}${msg.image}`}
+                // ✅ If DB stores just filename (e.g. "photo.png")
+                src={`${API_URL}/images/${msg.image}`}
+                // ✅ If DB stores "/images/photo.png", use instead:
+                // src={`${API_URL}${msg.image}`}
                 alt="Kindness note"
               />
             </div>
