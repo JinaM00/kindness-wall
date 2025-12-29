@@ -104,6 +104,23 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "DB error", details: err.message });
   }
 });
+
+/* -------------------- MESSAGES CRUD -------------------- */
+// Example: Get all messages
+app.get("/messages", async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
+      FROM messages m
+      JOIN users u ON m.user_id = u.id
+      ORDER BY m.created_at DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: "DB error", details: err.message });
+  }
+});
+
 // Post a new message
 app.post("/messages", async (req, res) => {
   const { text, mood, image } = req.body;
@@ -126,23 +143,6 @@ app.post("/messages", async (req, res) => {
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
-
-/* -------------------- MESSAGES CRUD -------------------- */
-// Example: Get all messages
-app.get("/messages", async (req, res) => {
-  try {
-    const [rows] = await db.query(`
-      SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
-      FROM messages m
-      JOIN users u ON m.user_id = u.id
-      ORDER BY m.created_at DESC
-    `);
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: "DB error", details: err.message });
-  }
-});
-
 // (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 
 /* -------------------- Start server -------------------- */
