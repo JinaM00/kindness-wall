@@ -104,6 +104,28 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "DB error", details: err.message });
   }
 });
+// Post a new message
+app.post("/messages", async (req, res) => {
+  const { text, mood, image } = req.body;
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(401).json({ error: "Missing Authorization header" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const [result] = await db.query(
+      "INSERT INTO messages (user_id, text, mood, image, created_at) VALUES (?,?,?,?,NOW())",
+      [userId, text, mood, image]
+    );
+
+    res.json({ success: true, id: result.insertId });
+  } catch (err) {
+    console.error("❌ Message error:", err);
+    res.status(500).json({ error: "Database error", details: err.message });
+  }
+});
 
 /* -------------------- MESSAGES CRUD -------------------- */
 // Example: Get all messages
