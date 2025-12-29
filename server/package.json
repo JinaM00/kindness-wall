@@ -29,6 +29,9 @@
   "dependencies": {
   
     
+  "@supabase/supabase-js": "^2.89.0",
+  
+    
   "bcrypt": "^6.0.0",
   
     

@@ -192,7 +192,8 @@ app.get("/messages/category/:category", async (req, res) => {
 // Post a new message
 app.post("/messages", upload.single("image"), async (req, res) => {
   const { text, mood } = req.body;
-  const image = req.file ? req.file.filename : null;
+  // ✅ Store relative path if image exists
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   // Basic validation
   if (!text || !text.trim()) {
@@ -220,10 +221,9 @@ app.post("/messages", upload.single("image"), async (req, res) => {
       [userId, text.trim(), mood || null, image]
     );
 
-    res.json({ success: true, id: result.insertId });
+    res.json({ success: true, id: result.insertId, image });
   } catch (err) {
     console.error("❌ Message error:", err);
-    // Multer/file errors surface here too
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
