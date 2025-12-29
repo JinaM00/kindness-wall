@@ -7,7 +7,7 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Load .env only in local dev
+// Load .env in local dev
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
@@ -39,10 +39,10 @@ let db;
 async function initDB() {
   try {
     db = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: process.env.DB_HOST || "localhost",
+      user: process.env.DB_USER || "root",
+      password: process.env.DB_PASSWORD || "",
+      database: process.env.DB_NAME || "KindnessWall",
       port: process.env.DB_PORT || 3306,
     });
     console.log("✅ Connected to MySQL database");
@@ -106,7 +106,7 @@ app.post("/login", async (req, res) => {
 });
 
 /* -------------------- MESSAGES CRUD -------------------- */
-// Get all messages
+// Example: Get all messages
 app.get("/messages", async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -121,109 +121,7 @@ app.get("/messages", async (req, res) => {
   }
 });
 
-// Get single message
-app.get("/messages/:id", async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      `SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
-       FROM messages m
-       JOIN users u ON m.user_id = u.id
-       WHERE m.id = ?`,
-      [req.params.id]
-    );
-    if (rows.length === 0) return res.status(404).json({ error: "Not found" });
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: "DB error", details: err.message });
-  }
-});
-
-// Create message
-app.post("/messages", upload.single("image"), async (req, res) => {
-  const { user_id, text, mood } = req.body;
-  const image = req.file ? req.file.filename : null;
-  if (!user_id || !text || !mood) {
-    return res.status(400).json({ error: "user_id, text, mood required" });
-  }
-  try {
-    const [result] = await db.query(
-      "INSERT INTO messages (user_id, text, mood, image) VALUES (?,?,?,?)",
-      [user_id, text, mood, image]
-    );
-    const [rows] = await db.query(
-      `SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
-       FROM messages m
-       JOIN users u ON m.user_id = u.id
-       WHERE m.id = ?`,
-      [result.insertId]
-    );
-    res.status(201).json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: "DB insert error", details: err.message });
-  }
-});
-
-// Update message
-app.put("/messages/:id", async (req, res) => {
-  const { text, mood } = req.body;
-  if (!text || !mood) return res.status(400).json({ error: "text and mood required" });
-  try {
-    const [result] = await db.query(
-      "UPDATE messages SET text = ?, mood = ? WHERE id = ?",
-      [text, mood, req.params.id]
-    );
-    if (result.affectedRows === 0) return res.status(404).json({ error: "Not found" });
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: "DB update error", details: err.message });
-  }
-});
-
-// Delete message
-app.delete("/messages/:id", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT image FROM messages WHERE id = ?", [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ error: "Not found" });
-
-    const file = rows[0].image;
-    await db.query("DELETE FROM messages WHERE id = ?", [req.params.id]);
-    if (file) {
-      const full = path.join("images", file);
-      if (fs.existsSync(full)) fs.unlinkSync(full);
-    }
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: "DB delete error", details: err.message });
-  }
-});
-
-// Get messages by category
-app.get("/messages/category/:mood", async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      `SELECT m.id, m.user_id, m.text, m.mood, m.image, m.created_at, u.username
-       FROM messages m
-       JOIN users u ON m.user_id = u.id
-       WHERE m.mood = ?
-       ORDER BY m.created_at DESC`,
-      [req.params.mood]
-    );
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: "Database error", details: err.message });
-  }
-});
-
-// Random liftup message
-app.get("/liftup/random", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT * FROM liftup_messages ORDER BY RAND() LIMIT 1");
-    res.json(rows[0]);
-  } catch (err) {
-    console.error("❌ Error fetching random liftup message:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+// (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 
 /* -------------------- Start server -------------------- */
 const PORT = process.env.PORT || 5000;
