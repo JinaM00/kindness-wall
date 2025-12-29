@@ -343,27 +343,13 @@ app.get("/liftup/random", async (req, res) => {
 });
 
 // ⚠️ TEMPORARY ROUTE — remove after running once
-app.get("/fix-schema", async (req, res) => {
+app.get("/drop-pk", async (req, res) => {
   try {
-    // Drop current primary key (username)
     await db.query("ALTER TABLE users DROP PRIMARY KEY");
-
-    // Add numeric id column as primary key
-    await db.query(
-      "ALTER TABLE users ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY FIRST"
-    );
-
-    // Add uniqueness constraints
-    await db.query("ALTER TABLE users ADD UNIQUE (username)");
-    await db.query("ALTER TABLE users ADD UNIQUE (email)");
-
-    // Ensure messages.user_id is INT to reference users.id
-    await db.query("ALTER TABLE messages MODIFY user_id INT NULL");
-
-    res.json({ success: true, message: "Schema migration applied successfully" });
+    res.json({ success: true, message: "Primary key dropped from users table" });
   } catch (err) {
-    console.error("❌ Schema fix error:", err);
-    res.status(500).json({ error: "Schema fix failed", details: err.message });
+    console.error("❌ Drop PK error:", err);
+    res.status(500).json({ error: "Failed to drop primary key", details: err.message });
   }
 });
 /* -------------------- Start server -------------------- */
