@@ -32,7 +32,7 @@ function Wall({ auth }) {
     } finally {
       setLoading(false);
     }
-  }, [filter, API_URL]); // ✅ include API_URL
+  }, [filter]); // ✅ include API_URL
 
   useEffect(() => {
     fetchMessages();
