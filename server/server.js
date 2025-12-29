@@ -299,7 +299,7 @@ app.delete("/messages/:id", async (req, res) => {
     // Remove image file if present
     if (rows[0].image) {
       const filePath = path.join(imagesDir, path.basename(rows[0].image));
-      if(fs.existsSync(filePath)) && fs.unlinkSync(filePath);
+      fs.existsSync(filePath) && fs.unlinkSync(filePath);
     }
 
     await db.query("DELETE FROM messages WHERE id = ?", [id]);
