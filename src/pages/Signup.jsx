@@ -4,15 +4,15 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Signup.css";
 
+const API_URL =
+  process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
 function Signup({ setAuth }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,15 +29,15 @@ function Signup({ setAuth }) {
         password,
       });
 
-      console.log("✅ Signup response:", res.data);
-      setStatus("Signup successful! Please login to continue.");
+      // ✅ Save { token, user } in state + localStorage
+      const authData = { token: res.data.token, user: res.data.user };
+      setAuth(authData);
+      localStorage.setItem("auth", JSON.stringify(authData));
 
-      // ❌ Remove setAuth here — we don’t log them in automatically
-      // ✅ Redirect user to login page instead
-      navigate("/login");
+      navigate("/wall");
     } catch (err) {
       console.error("❌ Signup error:", err.response?.data || err.message);
-      setStatus(err.response?.data?.error || "Signup failed.");
+      setError(err.response?.data?.error || "Signup failed.");
     }
   };
 
@@ -74,7 +74,7 @@ function Signup({ setAuth }) {
         />
 
         <button type="submit">Signup</button>
-        <p>{status}</p>
+        {error && <p className="error">{error}</p>}
 
         <p>
           Already have an account?{" "}

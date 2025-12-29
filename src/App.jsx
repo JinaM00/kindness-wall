@@ -24,23 +24,21 @@ function App() {
 
   // ✅ Handle login: store token + user together
   const handleLogin = (authData) => {
-    // authData should be { token, user } from backend
-    setAuth(authData);
+    setAuth(authData); // { token, user }
     localStorage.setItem("auth", JSON.stringify(authData));
   };
 
-// ✅ Handle logout: clear state + localStorage
-const handleLogout = () => {
-  setAuth(null);
-  localStorage.removeItem("auth");
-};
-  
+  // ✅ Handle logout: clear state + localStorage
+  const handleLogout = () => {
+    setAuth(null);
+    localStorage.removeItem("auth");
+  };
 
   return (
     <Router>
       <div className="App">
-        {/* ✅ Pass auth + logout to NavBar so it can show user info and logout button */}
-        <NavBar auth={auth} onLogout={handleLogout} />
+        {/* ✅ Pass user instead of auth */}
+        <NavBar user={auth?.user} onLogout={handleLogout} />
 
         <Routes>
           <Route path="/" element={<Home />} />

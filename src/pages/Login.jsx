@@ -4,7 +4,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+const API_URL =
+  process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
 function Login({ setAuth }) {
   const [email, setEmail] = useState("");
@@ -23,11 +24,12 @@ function Login({ setAuth }) {
     try {
       const res = await axios.post(`${API_URL}/login`, { email, password });
 
+      // ✅ Save { token, user } in state + localStorage
       const authData = { token: res.data.token, user: res.data.user };
       setAuth(authData);
       localStorage.setItem("auth", JSON.stringify(authData));
 
-      navigate("/");
+      navigate("/wall");
     } catch (err) {
       console.error("❌ Login error:", err.response?.data || err.message);
       setError(err.response?.data?.error || "Wrong username or password");
@@ -64,7 +66,11 @@ function Login({ setAuth }) {
         <p>
           Don’t have an account?{" "}
           <span
-            style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
+            style={{
+              color: "blue",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
             onClick={() => navigate("/signup")}
           >
             Signup
