@@ -11,7 +11,8 @@ function Signup({ setAuth }) {
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
 
-  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+  const API_URL =
+    process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,10 +30,11 @@ function Signup({ setAuth }) {
       });
 
       console.log("✅ Signup response:", res.data);
-      setStatus("Signup successful!");
+      setStatus("Signup successful! Please login to continue.");
 
-      setAuth({ id: res.data.id, username, email });
-      navigate("/");
+      // ❌ Remove setAuth here — we don’t log them in automatically
+      // ✅ Redirect user to login page instead
+      navigate("/login");
     } catch (err) {
       console.error("❌ Signup error:", err.response?.data || err.message);
       setStatus(err.response?.data?.error || "Signup failed.");
@@ -77,7 +79,11 @@ function Signup({ setAuth }) {
         <p>
           Already have an account?{" "}
           <span
-            style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
+            style={{
+              color: "blue",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
             onClick={() => navigate("/login")}
           >
             Login

@@ -41,7 +41,7 @@ function Wall({ auth }) {
   // ✅ Add a new message
   const addMessage = async ({ text, mood, image }) => {
     if (!auth || !auth.token) {
-      setPostError("❌ No auth token available");
+      setPostError("❌ Please LOGIN");
       return;
     }
 
