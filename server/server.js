@@ -68,8 +68,8 @@ app.post("/signup", async (req, res) => {
   try {
     const hashed = await bcrypt.hash(password, 10);
     const [result] = await db.query(
-      "INSERT INTO users (username, email, password, created_at) VALUES (?,?,?,NOW())",
-      [username, email, hashed]
+    "INSERT INTO users (username, email, password, created_at) VALUES (?,?,?,NOW())",
+    [username, email, hashed]
     );
     res.json({ success: true, id: result.insertId });
   } catch (err) {
