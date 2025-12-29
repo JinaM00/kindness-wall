@@ -7,6 +7,17 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+/* src/styles/NavBar.css */
+
+.welcome-text {
+  font-family: "Poppins", sans-serif;   /* clean modern font */
+  font-weight: 600;                     /* bold */
+  font-size: 1rem;                      /* adjust size */
+  color: #ff69b4;                       /* soft pink */
+  margin-left: 1rem;                    /* spacing */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* subtle glow */
+}
+
 .logo img {
   height: 50px;
   width: auto;
