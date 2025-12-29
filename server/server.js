@@ -179,6 +179,17 @@ app.get("/current_prompt", (req, res) => {
     res.json({ message: "No prompt yet" });
   }
 });
+//TEMPORARY
+app.get("/fix-created-at", async (req, res) => {
+  try {
+    await db.query(
+      "ALTER TABLE liftup_messages MODIFY created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+    );
+    res.send("✅ Table updated");
+  } catch (err) {
+    res.status(500).send("❌ Error: " + err.message);
+  }
+});
 
 // (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 
