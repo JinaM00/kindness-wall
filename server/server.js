@@ -33,9 +33,10 @@ if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir);
 
 // Serve uploaded images under /images
 app.use("/images", express.static(imagesDir));
+
 /* -------------------- Multer -------------------- */
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
+  destination: (req, file, cb) => cb(null, imagesDir), // ✅ save into /images
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     const base = path
@@ -191,7 +192,7 @@ app.get("/messages/category/:category", async (req, res) => {
 app.post("/messages", upload.single("image"), async (req, res) => {
   const { text, mood } = req.body;
   // ✅ Store relative path if image exists
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
+  const image = req.file ? `/images/${req.file.filename}` : null;
 
   // Basic validation
   if (!text || !text.trim()) {
@@ -292,7 +293,7 @@ app.delete("/messages/:id", async (req, res) => {
 
     // Remove image file if present
     if (rows[0].image) {
-      const filePath = path.join(uploadsDir, rows[0].image);
+      const filePath = path.join(imagesDir, path.basename(rows[0].image));
       fs.existsSync(filePath) && fs.unlinkSync(filePath);
     }
 
