@@ -1,9 +1,10 @@
 // src/pages/Home.jsx
-import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "../styles/Home.css";
 import bgImage from "../assets/background.jpg";
+import React, { useState, useEffect, useCallback } from "react";
+
 
 function Home() {
   const [featured, setFeatured] = useState("");
@@ -13,27 +14,22 @@ function Home() {
   const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   // function to fetch a random kindness message
-  const fetchFeatured = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/liftup/random`);
-      setFeatured(`${res.data.emoji || ""} ${res.data.text}`);
-      setError(null);
-    } catch (err) {
-      console.error("❌ Error fetching featured message:", err);
-      setError("Could not load featured kindness. ✨");
-    }
-  };
+const fetchFeatured = useCallback(async () => {
+  try {
+    const res = await axios.get(`${API_URL}/liftup/random`);
+    setFeatured(`${res.data.emoji || ""} ${res.data.text}`);
+    setError(null);
+  } catch (err) {
+    console.error("❌ Error fetching featured message:", err);
+    setError("Could not load featured kindness. ✨");
+  }
+}, [API_URL]);
 
-  useEffect(() => {
-    // fetch immediately on mount
-    fetchFeatured();
-
-    // then refresh every 15 seconds
-    const interval = setInterval(fetchFeatured, 15000);
-
-    // cleanup when component unmounts
-    return () => clearInterval(interval);
-  }, []); // no deps, runs once
+useEffect(() => {
+  fetchFeatured();
+  const interval = setInterval(fetchFeatured, 15000);
+  return () => clearInterval(interval);
+}, [fetchFeatured]); // ✅ now safe
 
   return (
     <div

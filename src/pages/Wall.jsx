@@ -5,7 +5,8 @@ import MessageForm from "../components/MessageForm";
 import MessageCard from "../components/MessageCard";
 import "../styles/wall.css";
 // Use environment variable if available, fallback to Render URL
-const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com"
+const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
 function Wall({ auth }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ function Wall({ auth }) {
     } finally {
       setLoading(false);
     }
-  }, [filter, API_URL]);
+  }, [filter]);
 
   useEffect(() => {
     fetchMessages();
