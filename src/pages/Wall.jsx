@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MessageForm from "../components/MessageForm";
 import MessageCard from "../components/MessageCard";
-import "../styles/wall.css";
+import "src/styles/wall.css";
 
 function Wall({ auth }) {
   const [messages, setMessages] = useState([]);
