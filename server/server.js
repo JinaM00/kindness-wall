@@ -11,15 +11,18 @@ const jwt = require("jsonwebtoken");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
-const cors = require("cors");
 const app = express();
-app.use(cors());
 app.use(express.json());
+
 app.use(cors({
-  origin: "https://kindness-wall-frontend.vercel.app",
-  methods: ["GET", "POST"],
+  origin: [
+    "http://localhost:3000",                  // local dev
+    "https://kindness-wall.netlify.app"       // ✅ Netlify frontend
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],  // include all methods you use
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 // Serve uploaded images
 app.use("/images", express.static("images"));

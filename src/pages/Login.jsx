@@ -10,27 +10,37 @@ function Login({ setAuth }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // ✅ Base API URL (Render backend or environment variable)
+  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       alert("Please enter both email and password.");
       return;
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      // ✅ Use API_URL instead of localhost
+      const res = await axios.post(`${API_URL}/login`, {
         email,
-        password
+        password,
       });
 
+      // Save token for authenticated requests
       localStorage.setItem("token", res.data.token);
+
+      // Set auth state with user info
       setAuth(res.data.user);
-      navigate("/"); // go to Wall
+
+      // Redirect to Wall
+      navigate("/");
     } catch (err) {
       console.error("❌ Login error:", err.response?.data || err.message);
 
-      // Show wrong username/password message
-      setError("Wrong username or password");
+      // Show backend error if available, else generic message
+      setError(err.response?.data?.error || "Wrong username or password");
     }
   };
 

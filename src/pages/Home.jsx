@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -8,10 +9,13 @@ function Home() {
   const [featured, setFeatured] = useState("");
   const [error, setError] = useState(null);
 
+  // ✅ Base API URL (Render backend or environment variable)
+  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
   // function to fetch a random kindness message
   const fetchFeatured = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/liftup/random");
+      const res = await axios.get(`${API_URL}/liftup/random`);
       setFeatured(`${res.data.emoji || ""} ${res.data.text}`);
       setError(null);
     } catch (err) {
@@ -29,7 +33,7 @@ function Home() {
 
     // cleanup when component unmounts
     return () => clearInterval(interval);
-  }, []);
+  }, []); // no deps, runs once
 
   return (
     <div
@@ -38,7 +42,7 @@ function Home() {
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        minHeight: "100vh"
+        minHeight: "100vh",
       }}
     >
       <div className="home-content">

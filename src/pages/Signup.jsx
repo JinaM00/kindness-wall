@@ -11,18 +11,23 @@ function Signup({ setAuth }) {
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
 
+  // ✅ Base API URL (Render backend or environment variable)
+  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!username || !email || !password) {
       alert("All fields are required.");
       return;
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/signup", {
+      // ✅ Use API_URL instead of localhost
+      const res = await axios.post(`${API_URL}/signup`, {
         username,
         email,
-        password
+        password,
       });
 
       console.log("✅ Signup response:", res.data);
@@ -30,19 +35,18 @@ function Signup({ setAuth }) {
 
       // Immediately log in new user
       setAuth({ id: res.data.id, username, email });
-      navigate("/"); // go to Wall
-    }catch (err) {
-  console.error("❌ Signup error:", err.response?.data || err.message);
-
-  // ✅ Show backend error message if available
-  setStatus(err.response?.data?.error || "Signup failed.");
-}
+      navigate("/"); // redirect to Wall
+    } catch (err) {
+      console.error("❌ Signup error:", err.response?.data || err.message);
+      setStatus(err.response?.data?.error || "Signup failed.");
+    }
   };
 
   return (
     <div className="signup-page">
       <form onSubmit={handleSubmit} className="signup-form">
         <h2>Signup 🌸</h2>
+
         <input
           type="text"
           placeholder="Enter your username"
@@ -66,6 +70,7 @@ function Signup({ setAuth }) {
 
         <button type="submit">Signup</button>
         <p>{status}</p>
+
         <p>
           Already have an account?{" "}
           <span

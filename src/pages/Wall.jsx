@@ -4,7 +4,8 @@ import axios from "axios";
 import MessageForm from "../components/MessageForm";
 import MessageCard from "../components/MessageCard";
 import "../styles/wall.css";
-
+// Use environment variable if available, fallback to Render URL
+const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com"
 function Wall({ auth }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,8 +18,9 @@ function Wall({ auth }) {
     try {
       setLoading(true);
       const url = filter
-        ? `http://localhost:5000/messages/category/${filter}`
-        : "http://localhost:5000/messages";
+      ? `${API_URL}/messages/category/${filter}`
+      : `${API_URL}/messages`;
+
 
       const res = await axios.get(url);
       setMessages((res.data || []).filter(Boolean));
@@ -27,7 +29,7 @@ function Wall({ auth }) {
     } finally {
       setLoading(false);
     }
-  }, [filter]); // only depends on filter
+  }, [filter, API_URL]);
 
   useEffect(() => {
     fetchMessages();
@@ -47,9 +49,10 @@ function Wall({ auth }) {
     if (image) formData.append("image", image);
 
     try {
-      await axios.post("http://localhost:5000/messages", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await axios.post(`${API_URL}/messages`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
       });
+
       fetchMessages();
       setPage(1);
     } catch (err) {
@@ -60,7 +63,7 @@ function Wall({ auth }) {
   // Remove a message
   const removeMessage = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/messages/${id}`);
+      await axios.delete(`${API_URL}/messages/${id}`);
       fetchMessages();
     } catch (err) {
       console.error("❌ Error removing message:", err.response?.data || err);
@@ -70,7 +73,7 @@ function Wall({ auth }) {
   // Edit a message
   const editMessage = async (id, updatedMsg) => {
     try {
-      await axios.put(`http://localhost:5000/messages/${id}`, updatedMsg);
+     await axios.put(`${API_URL}/messages/${id}`, updatedMsg);
       fetchMessages();
     } catch (err) {
       console.error("❌ Error editing message:", err.response?.data || err);

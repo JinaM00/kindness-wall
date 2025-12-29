@@ -10,6 +10,8 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
   const id = msg.id || msg.message_id;
   const isOwner = auth && auth.id === msg.user_id; // 👈 check ownership
 
+  const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
+
   const handleSave = () => {
     onEdit(id, { ...msg, text: editText, mood: editMood });
     setIsEditing(false);
@@ -51,7 +53,7 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
           {msg.image && (
             <div className="message-image">
               <img
-                src={`http://localhost:5000/images/${msg.image}`}
+                src={`${API_URL}/images/${msg.image}`}
                 alt="Kindness note"
               />
             </div>
