@@ -32,11 +32,11 @@ const upload = multer({ storage });
 async function init() {
   // ✅ create promise connection
 const db = await mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 3306,
+  host: process.env.DB_HOST,       // from Railway MYSQLHOST
+  user: process.env.DB_USER,       // from Railway MYSQLUSER
+  password: process.env.DB_PASSWORD, // from Railway MYSQLPASSWORD
+  database: process.env.DB_NAME,   // from Railway MYSQLDATABASE
+  port: process.env.DB_PORT || 3306, // from Railway MYSQLPORT
 });
 
 
@@ -90,8 +90,11 @@ app.post("/signup", async (req, res) => {
       const match = await bcrypt.compare(password, user.password);
       if (!match) return res.status(401).json({ error: "Invalid credentials" });
 
-      const token = jwt.sign({ id: user.id, username: user.username }, "secretkey");
-      res.json({ token, user });
+      const token = jwt.sign(
+  { id: user.id, username: user.username },
+  process.env.JWT_SECRET,          // set this in Render Environment tab
+  { expiresIn: "7d" }
+);
     } catch (err) {
       res.status(500).json({ error: "DB error", details: err });
     }
@@ -216,8 +219,6 @@ app.get("/liftup/random", async (req, res) => {
   }
 });
   /* -------------------- Start server -------------------- */
-  const PORT = 5000;
-  app.listen(PORT, () => console.log(`✅ Backend running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
 }
-
-init();
