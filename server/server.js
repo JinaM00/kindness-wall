@@ -343,20 +343,20 @@ app.get("/liftup/random", async (req, res) => {
 });
  
 // ⚠️ TEMPORARY ROUTE — remove after running once
-app.get("/fix-messages-userid", async (req, res) => {
+app.get("/fix-fk", async (req, res) => {
   try {
-    // Step 1: Backfill NULL user_id values with existing user id=3
-    await db.query("UPDATE messages SET user_id = 3 WHERE user_id IS NULL");
+    // Step 1: Drop existing fk_user constraint if it exists
+    await db.query("ALTER TABLE messages DROP FOREIGN KEY fk_user");
 
-    // Step 2: Add foreign key constraint
+    // Step 2: Add foreign key with a new name
     await db.query(`
       ALTER TABLE messages
-      ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
+      ADD CONSTRAINT fk_messages_user FOREIGN KEY (user_id) REFERENCES users(id)
     `);
 
-    res.json({ success: true, message: "Messages user_id fixed and FK added" });
+    res.json({ success: true, message: "Foreign key constraint fixed successfully" });
   } catch (err) {
-    console.error("❌ Fix messages error:", err);
+    console.error("❌ FK fix error:", err);
     res.status(500).json({ error: "Schema fix failed", details: err.message });
   }
 });
