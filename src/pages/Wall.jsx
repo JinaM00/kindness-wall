@@ -26,7 +26,14 @@ function Wall({ auth }) {
         : `${API_URL}/messages`;
 
       const res = await axios.get(url);
-      setMessages((res.data || []).filter(Boolean));
+
+      // Normalize image URLs so they point to backend
+      const normalized = (res.data || []).filter(Boolean).map((msg) => ({
+        ...msg,
+        image: msg.image ? `${API_URL}/uploads/${msg.image}` : null,
+      }));
+
+      setMessages(normalized);
     } catch (err) {
       console.error("❌ Error fetching messages:", err.response?.data || err);
     } finally {
@@ -41,7 +48,7 @@ function Wall({ auth }) {
   // ✅ Add a new message
   const addMessage = async ({ text, mood, image }) => {
     if (!auth || !auth.token) {
-      setPostError("❌ Please LOGIN");
+      setPostError("❌ Please login first to post a message");
       return;
     }
 
@@ -54,7 +61,7 @@ function Wall({ auth }) {
       await axios.post(`${API_URL}/messages`, formData, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "multipart/form-data", // ✅ important for FormData
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -70,7 +77,7 @@ function Wall({ auth }) {
   // ✅ Remove a message
   const removeMessage = async (id) => {
     if (!auth || !auth.token) {
-      setPostError("❌ No auth token available");
+      setPostError("❌ Please login first to remove a message");
       return;
     }
 
@@ -90,7 +97,7 @@ function Wall({ auth }) {
   // ✅ Edit a message
   const editMessage = async (id, updatedMsg) => {
     if (!auth || !auth.token) {
-      setPostError("❌ No auth token available");
+      setPostError("❌ Please login first to edit a message");
       return;
     }
 
@@ -98,7 +105,7 @@ function Wall({ auth }) {
       await axios.put(`${API_URL}/messages/${id}`, updatedMsg, {
         headers: {
           Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "application/json", // ✅ JSON body for text-only edits
+          "Content-Type": "application/json",
         },
       });
       fetchMessages();
@@ -128,7 +135,7 @@ function Wall({ auth }) {
           <label htmlFor="category">Filter by category: </label>
           <select
             id="category"
-            name="category" // ✅ added name
+            name="category"
             value={filter}
             onChange={(e) => {
               setFilter(e.target.value);

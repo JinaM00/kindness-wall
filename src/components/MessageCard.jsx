@@ -11,7 +11,7 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
   // ✅ auth stores { token, user }, so check auth.user.id
   const isOwner = Boolean(auth?.user?.id) && auth.user.id === msg.user_id;
 
-  // Match backend static route for images (ensure server serves /uploads)
+  // Match backend static route for images
   const API_URL =
     process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
@@ -47,10 +47,17 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
             <option value="hope">Hope</option>
           </select>
           <div className="note-actions">
-            <button className="edit-btn" onClick={handleSave} disabled={!editText.trim()}>
+            <button
+              className="edit-btn"
+              onClick={handleSave}
+              disabled={!editText.trim()}
+            >
               Save
             </button>
-            <button className="remove-btn" onClick={() => setIsEditing(false)}>
+            <button
+              className="remove-btn"
+              onClick={() => setIsEditing(false)}
+            >
               Cancel
             </button>
           </div>
@@ -59,8 +66,9 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
         <>
           {msg.image && (
             <div className="message-image">
+              {/* ✅ msg.image already includes `/uploads/...` from backend */}
               <img
-                src={`${API_URL}/uploads/${msg.image}`}
+                src={`${API_URL}${msg.image}`}
                 alt="Kindness note"
               />
             </div>
@@ -75,10 +83,16 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
           {/* 👇 Only show edit/remove if user owns the note */}
           {isOwner && (
             <div className="note-actions">
-              <button className="edit-btn" onClick={() => setIsEditing(true)}>
+              <button
+                className="edit-btn"
+                onClick={() => setIsEditing(true)}
+              >
                 Edit
               </button>
-              <button className="remove-btn" onClick={() => onRemove(id)}>
+              <button
+                className="remove-btn"
+                onClick={() => onRemove(id)}
+              >
                 Remove
               </button>
             </div>
