@@ -130,8 +130,10 @@ app.get("/messages", async (req, res) => {
 });
 
 // Post a new message
-app.post("/messages", async (req, res) => {
-  const { text, mood, image } = req.body;
+app.post("/messages", upload.single("image"), async (req, res) => {
+  const { text, mood } = req.body;
+  const image = req.file ? req.file.filename : null;
+
   const authHeader = req.headers["authorization"];
   if (!authHeader) return res.status(401).json({ error: "Missing Authorization header" });
 
@@ -151,6 +153,8 @@ app.post("/messages", async (req, res) => {
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
+
+
 let currentPrompt = null;
 
 // Function to fetch a random prompt from DB
@@ -177,6 +181,23 @@ app.get("/current_prompt", (req, res) => {
     res.json(currentPrompt);
   } else {
     res.json({ message: "No prompt yet" });
+  }
+});
+
+// Add this in server.js
+app.get("/liftup/random", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT id, text, emoji FROM liftup_messages ORDER BY RAND() LIMIT 1"
+    );
+    if (rows.length > 0) {
+      res.json(rows[0]);
+    } else {
+      res.status(404).json({ error: "No featured kindness available" });
+    }
+  } catch (err) {
+    console.error("❌ Error fetching featured kindness:", err);
+    res.status(500).json({ error: "Database error", details: err.message });
   }
 });
 

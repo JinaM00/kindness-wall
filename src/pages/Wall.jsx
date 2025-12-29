@@ -37,29 +37,31 @@ function Wall({ auth }) {
   }, [fetchMessages]); // ✅ now safe
 
   // Add a new message
-  const addMessage = async ({ text, mood, image }) => {
-    if (!auth || !auth.id) {
-      console.error("❌ No auth user available");
-      return;
-    }
+const addMessage = async ({ text, mood, image }) => {
+  if (!auth || !auth.token) {
+    console.error("❌ No auth token available");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append("user_id", auth.id);
-    formData.append("text", text);
-    formData.append("mood", mood);
-    if (image) formData.append("image", image);
+  const formData = new FormData();
+  formData.append("text", text);
+  formData.append("mood", mood);
+  if (image) formData.append("image", image);
 
-    try {
-      await axios.post(`${API_URL}/messages`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      });
+  try {
+    await axios.post(`${API_URL}/messages`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${auth.token}`, // ✅ send JWT
+      },
+    });
 
-      fetchMessages();
-      setPage(1);
-    } catch (err) {
-      console.error("❌ Error adding message:", err.response?.data || err);
-    }
-  };
+    fetchMessages();
+    setPage(1);
+  } catch (err) {
+    console.error("❌ Error adding message:", err.response?.data || err);
+  }
+};
 
   // Remove a message
   const removeMessage = async (id) => {
