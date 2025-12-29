@@ -4,7 +4,9 @@ const mysql = require("mysql2/promise");
 const app = express();
 
 console.log("🚀 Starting server.js...");
-
+app.get("/", (req, res) => {
+  res.send("Hello from kindness-wall backend!");
+});
 (async () => {
   try {
     const db = await mysql.createConnection({
