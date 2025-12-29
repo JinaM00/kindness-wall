@@ -11,10 +11,15 @@ const jwt = require("jsonwebtoken");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
-
+const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(cors({
+  origin: "https://kindness-wall-frontend.vercel.app",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Serve uploaded images
 app.use("/images", express.static("images"));
@@ -143,6 +148,35 @@ app.post("/messages", async (req, res) => {
     res.status(500).json({ error: "Database error", details: err.message });
   }
 });
+let currentPrompt = null;
+
+// Function to fetch a random prompt from DB
+async function updatePrompt() {
+  try {
+    const [rows] = await db.query(
+      "SELECT id, text, emoji FROM liftup_messages ORDER BY RAND() LIMIT 1"
+    );
+    if (rows.length > 0) {
+      currentPrompt = rows[0];
+      console.log("✨ Updated prompt:", currentPrompt);
+    }
+  } catch (err) {
+    console.error("❌ Error fetching prompt:", err);
+  }
+}
+
+// Run every 15 seconds
+setInterval(updatePrompt, 15000);
+
+// Endpoint to get the current prompt
+app.get("/current_prompt", (req, res) => {
+  if (currentPrompt) {
+    res.json(currentPrompt);
+  } else {
+    res.json({ message: "No prompt yet" });
+  }
+});
+
 // (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 
 /* -------------------- Start server -------------------- */
