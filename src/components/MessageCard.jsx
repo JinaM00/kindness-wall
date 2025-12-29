@@ -22,11 +22,7 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
   };
 
   const moodClass = (msg.mood || "").toLowerCase();
-  2Warning: Don’t paste code into the DevTools Console that you don’t understand or haven’t reviewed yourself. This could allow attackers to steal your identity or take control of your computer. Please type ‘allow pasting’ below and press Enter to allow pasting.
-allow pasting
-console.log(msg.image);
-VM129:1 Uncaught ReferenceError: msg is not defined
-    at <anonymous>:1:13
+  
 
   return (
     <div className={`message-card ${moodClass}`}>
