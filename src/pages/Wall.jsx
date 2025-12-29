@@ -1,5 +1,5 @@
 // src/pages/Wall.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import MessageForm from "../components/MessageForm";
 import MessageCard from "../components/MessageCard";
