@@ -11,7 +11,6 @@ function Signup({ setAuth }) {
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Base API URL (Render backend or environment variable)
   const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSubmit = async (e) => {
@@ -23,7 +22,6 @@ function Signup({ setAuth }) {
     }
 
     try {
-      // ✅ Use API_URL instead of localhost
       const res = await axios.post(`${API_URL}/signup`, {
         username,
         email,
@@ -33,9 +31,8 @@ function Signup({ setAuth }) {
       console.log("✅ Signup response:", res.data);
       setStatus("Signup successful!");
 
-      // Immediately log in new user
       setAuth({ id: res.data.id, username, email });
-      navigate("/"); // redirect to Wall
+      navigate("/");
     } catch (err) {
       console.error("❌ Signup error:", err.response?.data || err.message);
       setStatus(err.response?.data?.error || "Signup failed.");
@@ -49,6 +46,8 @@ function Signup({ setAuth }) {
 
         <input
           type="text"
+          id="signup-username"
+          name="username"
           placeholder="Enter your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -56,6 +55,8 @@ function Signup({ setAuth }) {
 
         <input
           type="email"
+          id="signup-email"
+          name="email"
           placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -63,6 +64,8 @@ function Signup({ setAuth }) {
 
         <input
           type="password"
+          id="signup-password"
+          name="password"
           placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

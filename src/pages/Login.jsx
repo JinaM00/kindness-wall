@@ -4,7 +4,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 
-// ✅ Base API URL (Render backend or environment variable)
 const API_URL = process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
 function Login({ setAuth }) {
@@ -21,22 +20,18 @@ function Login({ setAuth }) {
       return;
     }
 
-  try {
-  const res = await axios.post(`${API_URL}/login`, { email, password });
+    try {
+      const res = await axios.post(`${API_URL}/login`, { email, password });
 
-  // ✅ Save token + user in auth state
-  const authData = { token: res.data.token, user: res.data.user };
-  setAuth(authData);
+      const authData = { token: res.data.token, user: res.data.user };
+      setAuth(authData);
+      localStorage.setItem("auth", JSON.stringify(authData));
 
-  // ✅ Persist in localStorage so it survives refresh
-  localStorage.setItem("auth", JSON.stringify(authData));
-
-  // ✅ Redirect to Wall
-  navigate("/");
-  } catch (err) {
-  console.error("❌ Login error:", err.response?.data || err.message);
-  setError(err.response?.data?.error || "Wrong username or password");
-  }
+      navigate("/");
+    } catch (err) {
+      console.error("❌ Login error:", err.response?.data || err.message);
+      setError(err.response?.data?.error || "Wrong username or password");
+    }
   };
 
   return (
@@ -46,6 +41,8 @@ function Login({ setAuth }) {
 
         <input
           type="email"
+          id="login-email"
+          name="email"
           placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -53,6 +50,8 @@ function Login({ setAuth }) {
 
         <input
           type="password"
+          id="login-password"
+          name="password"
           placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

@@ -14,7 +14,7 @@ import AddMessage from "./AddMessage";
 function App() {
   const [auth, setAuth] = useState(null);
 
-  // ✅ Load auth (token + user) from localStorage when app starts
+  // ✅ Restore auth (token + user) from localStorage when app starts
   useEffect(() => {
     const savedAuth = localStorage.getItem("auth");
     if (savedAuth) {
@@ -38,7 +38,9 @@ function App() {
   return (
     <Router>
       <div className="App">
+        {/* ✅ Pass auth + logout to NavBar so it can show user info and logout button */}
         <NavBar auth={auth} onLogout={handleLogout} />
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -48,6 +50,7 @@ function App() {
           <Route path="/signup" element={<Signup setAuth={handleLogin} />} />
           <Route path="/add" element={<AddMessage auth={auth} />} />
         </Routes>
+
         <Footer />
       </div>
     </Router>

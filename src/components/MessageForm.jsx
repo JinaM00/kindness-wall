@@ -33,12 +33,19 @@ function MessageForm({ onAdd }) {
   return (
     <form className="message-form-simple" onSubmit={handleSubmit}>
       <textarea
+        id="message-text"
+        name="text"                // ✅ added name
         placeholder="Write your kindness note..."
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
 
-      <select value={mood} onChange={(e) => setMood(e.target.value)}>
+      <select
+        id="message-mood"
+        name="mood"                // ✅ added name
+        value={mood}
+        onChange={(e) => setMood(e.target.value)}
+      >
         <option value="joy">Joy</option>
         <option value="gratitude">Gratitude</option>
         <option value="hope">Hope</option>
@@ -51,6 +58,7 @@ function MessageForm({ onAdd }) {
         </label>
         <input
           id="fileInput"
+          name="image"             // ✅ added name
           type="file"
           className="file-input"
           accept="image/*"

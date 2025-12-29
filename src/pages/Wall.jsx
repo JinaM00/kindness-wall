@@ -14,7 +14,7 @@ function Wall({ auth }) {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("");
-  const [postError, setPostError] = useState(""); // ✅ show backend errors
+  const [postError, setPostError] = useState("");
   const pageSize = 8;
 
   // ✅ Fetch messages
@@ -32,7 +32,7 @@ function Wall({ auth }) {
     } finally {
       setLoading(false);
     }
-  }, [filter]); // ✅ include API_URL
+  }, [filter]);
 
   useEffect(() => {
     fetchMessages();
@@ -53,7 +53,8 @@ function Wall({ auth }) {
     try {
       await axios.post(`${API_URL}/messages`, formData, {
         headers: {
-          Authorization: `Bearer ${auth.token}`, // ✅ send JWT
+          Authorization: `Bearer ${auth.token}`,
+          "Content-Type": "multipart/form-data", // ✅ important for FormData
         },
       });
 
@@ -75,7 +76,9 @@ function Wall({ auth }) {
 
     try {
       await axios.delete(`${API_URL}/messages/${id}`, {
-        headers: { Authorization: `Bearer ${auth.token}` },
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
       });
       fetchMessages();
     } catch (err) {
@@ -84,7 +87,7 @@ function Wall({ auth }) {
     }
   };
 
-  // ✅ Edit a message (text-only; use FormData if editing image too)
+  // ✅ Edit a message
   const editMessage = async (id, updatedMsg) => {
     if (!auth || !auth.token) {
       setPostError("❌ No auth token available");
@@ -93,7 +96,10 @@ function Wall({ auth }) {
 
     try {
       await axios.put(`${API_URL}/messages/${id}`, updatedMsg, {
-        headers: { Authorization: `Bearer ${auth.token}` },
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          "Content-Type": "application/json", // ✅ JSON body for text-only edits
+        },
       });
       fetchMessages();
     } catch (err) {
@@ -122,6 +128,7 @@ function Wall({ auth }) {
           <label htmlFor="category">Filter by category: </label>
           <select
             id="category"
+            name="category" // ✅ added name
             value={filter}
             onChange={(e) => {
               setFilter(e.target.value);
@@ -147,7 +154,7 @@ function Wall({ auth }) {
                 msg={msg}
                 onEdit={editMessage}
                 onRemove={removeMessage}
-                auth={auth} // 👈 pass auth down
+                auth={auth}
               />
             ))
           )}
