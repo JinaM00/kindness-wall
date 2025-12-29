@@ -191,6 +191,7 @@ app.get("/messages/category/:category", async (req, res) => {
 // Post a new message
 app.post("/messages", upload.single("image"), async (req, res) => {
   const { text, mood } = req.body;
+
   // ✅ Store relative path if image exists
   const image = req.file ? `/images/${req.file.filename}` : null;
 
@@ -220,7 +221,11 @@ app.post("/messages", upload.single("image"), async (req, res) => {
       [userId, text.trim(), mood || null, image]
     );
 
-    res.json({ success: true, id: result.insertId, image });
+    res.json({
+      success: true,
+      id: result.insertId,
+      image,
+    });
   } catch (err) {
     console.error("❌ Message error:", err);
     res.status(500).json({ error: "Database error", details: err.message });
@@ -294,7 +299,7 @@ app.delete("/messages/:id", async (req, res) => {
     // Remove image file if present
     if (rows[0].image) {
       const filePath = path.join(imagesDir, path.basename(rows[0].image));
-      fs.existsSync(filePath) && fs.unlinkSync(filePath);
+      if(fs.existsSync(filePath)) && fs.unlinkSync(filePath);
     }
 
     await db.query("DELETE FROM messages WHERE id = ?", [id]);
