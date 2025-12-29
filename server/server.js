@@ -342,14 +342,12 @@ app.get("/liftup/random", async (req, res) => {
   }
 });
 
-// ⚠️ TEMPORARY ROUTE — remove after running once
-app.get("/drop-pk", async (req, res) => {
+app.get("/show-users-schema", async (req, res) => {
   try {
-    await db.query("ALTER TABLE users DROP PRIMARY KEY");
-    res.json({ success: true, message: "Primary key dropped from users table" });
+    const [rows] = await db.query("SHOW CREATE TABLE users");
+    res.json(rows);
   } catch (err) {
-    console.error("❌ Drop PK error:", err);
-    res.status(500).json({ error: "Failed to drop primary key", details: err.message });
+    res.status(500).json({ error: "Failed to show schema", details: err.message });
   }
 });
 /* -------------------- Start server -------------------- */
