@@ -248,39 +248,6 @@ app.get("/liftup/random", async (req, res) => {
   }
 });
 
-// Temporary route to fix schema
-app.get("/fix-image-null", async (req, res) => {
-  try {
-    await db.query(`
-      ALTER TABLE messages 
-      MODIFY image VARCHAR(255) NULL
-    `);
-    res.json({ success: true, message: "✅ Image column now allows NULL" });
-  } catch (err) {
-    console.error("❌ Schema fix error:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Temporary route to fix schema
-app.get("/fix-schema", async (req, res) => {
-  try {
-    await db.query(`
-      ALTER TABLE messages 
-      MODIFY created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    `);
-
-    await db.query(`
-      ALTER TABLE messages 
-      MODIFY image VARCHAR(255) NULL
-    `);
-
-    res.json({ success: true, message: "Schema fixed ✅" });
-  } catch (err) {
-    console.error("❌ Schema fix error:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // (Keep your other CRUD routes here: single message, create, update, delete, category, liftup/random)
 
