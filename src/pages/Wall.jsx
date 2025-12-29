@@ -12,8 +12,8 @@ function Wall({ auth }) {
   const [filter, setFilter] = useState("");
   const pageSize = 8;
 
-  // Fetch messages (all or by category)
-  const fetchMessages = async () => {
+  // ✅ Wrap fetchMessages in useCallback
+  const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
       const url = filter
@@ -27,11 +27,11 @@ function Wall({ auth }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]); // only depends on filter
 
-useEffect(() => {
-  fetchMessages();
-}, [fetchMessages, filter]); 
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]); // ✅ now safe
 
   // Add a new message
   const addMessage = async ({ text, mood, image }) => {
