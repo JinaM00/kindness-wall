@@ -29,9 +29,9 @@ function Wall({ auth }) {
     }
   };
 
-  useEffect(() => {
-    fetchMessages();
-  }, [filter]);
+useEffect(() => {
+  fetchMessages();
+}, [fetchMessages, filter]); 
 
   // Add a new message
   const addMessage = async ({ text, mood, image }) => {
