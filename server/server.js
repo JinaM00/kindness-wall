@@ -345,7 +345,7 @@ app.get("/liftup/random", async (req, res) => {
 // ⚠️ TEMPORARY ROUTE — remove after running once
 app.get("/fix-schema", async (req, res) => {
   try {
-    // Drop existing PK on username
+    // Drop current primary key (username)
     await db.query("ALTER TABLE users DROP PRIMARY KEY");
 
     // Add numeric id column as primary key
@@ -353,20 +353,19 @@ app.get("/fix-schema", async (req, res) => {
       "ALTER TABLE users ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY FIRST"
     );
 
-    // Ensure username and email are unique
+    // Add uniqueness constraints
     await db.query("ALTER TABLE users ADD UNIQUE (username)");
     await db.query("ALTER TABLE users ADD UNIQUE (email)");
 
-    // Make messages.user_id an INT to reference users.id
+    // Ensure messages.user_id is INT to reference users.id
     await db.query("ALTER TABLE messages MODIFY user_id INT NULL");
 
-    res.json({ success: true, message: "Schema fixed successfully" });
+    res.json({ success: true, message: "Schema migration applied successfully" });
   } catch (err) {
     console.error("❌ Schema fix error:", err);
     res.status(500).json({ error: "Schema fix failed", details: err.message });
   }
 });
-
 /* -------------------- Start server -------------------- */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
