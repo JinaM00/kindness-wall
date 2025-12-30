@@ -29,12 +29,12 @@ function Wall({ auth }) {
 
       // Normalize image URLs so they point to backend /images
       const normalized = (res.data || []).filter(Boolean).map((msg) => ({
-        ...msg,
-        // If DB stores just filename (e.g. "photo.png")
-        image: msg.image ? `${API_URL}/images/${msg.image}` : null,
-
-        // If DB stores "/images/photo.png", use instead:
-        // image: msg.image ? `${API_URL}${msg.image}` : null,
+      ...msg,
+      image: msg.image
+      ? msg.image.startsWith("/images/")
+      ? `${API_URL}${msg.image}`        // already has /images
+      : `${API_URL}/images/${msg.image}` // just filename
+      : null,
       }));
 
       setMessages(normalized);
@@ -160,6 +160,7 @@ function Wall({ auth }) {
             <p>No messages yet. Be the first to post!</p>
           ) : (
             currentMessages.map((msg) => (
+              console.log("Image field from API:", msg.image);
               <MessageCard
                 key={msg.id || msg.message_id}
                 msg={msg}
