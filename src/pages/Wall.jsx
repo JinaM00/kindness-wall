@@ -118,10 +118,14 @@ function Wall({ auth }) {
       });
       fetchMessages();
     } catch (err) {
-      console.error("❌ Error editing message:", err.response?.data || err);
-      setPostError(err.response?.data?.error || "Failed to edit message");
+    if (err.response?.data?.details === "jwt expired") {
+    setPostError("❌ Your session expired. Please log in again.");
+    return;
     }
-  };
+    console.error("❌ Error adding message:", err.response?.data || err);
+    setPostError(err.response?.data?.error || "Failed to post message");
+    }
+    };
 
   // ✅ Pagination
   const total = messages.length;
