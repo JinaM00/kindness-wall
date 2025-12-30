@@ -12,8 +12,6 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
   const isOwner = Boolean(auth?.user?.id) && auth.user.id === msg.user_id;
 
   // Match backend static route for images (ensure server serves /images)
-  const API_URL =
-    process.env.REACT_APP_API_URL || "https://kindness-wall-1.onrender.com";
 
   const handleSave = () => {
     if (!editText.trim()) return;
