@@ -62,18 +62,22 @@ function Wall({ auth }) {
     if (image) formData.append("image", image);
 
     try {
-      await axios.post(`${API_URL}/messages`, formData, {
+      const response = await axios.post(`${API_URL}/messages`, formData, {
         headers: {
+          
           Authorization: `Bearer ${auth.token}`,
-          "Content-Type": "multipart/form-data",
         },
+        
       });
+       // ✅ Debug log to confirm what backend returns
+      console.log("Upload response:", response.data);
+
 
       setPostError("");
       fetchMessages();
       setPage(1);
     } catch (err) {
-      console.error("❌ Error adding message:", err.response?.data || err);
+      console.error("❌ Error adding message:", err.response?.data || err.message);
       setPostError(err.response?.data?.error || "Failed to post message");
     }
   };
@@ -160,7 +164,6 @@ function Wall({ auth }) {
             <p>No messages yet. Be the first to post!</p>
           ) : (
             currentMessages.map((msg) => (
-              console.log("Image field from API:", msg.image);
               <MessageCard
                 key={msg.id || msg.message_id}
                 msg={msg}

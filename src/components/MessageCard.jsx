@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import "../styles/wall.css";
 
 function MessageCard({ msg, onEdit, onRemove, auth }) {
-  console.log("Image field from API:", msg.image); // ✅ log here
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(msg.text || msg.content || "");
   const [editMood, setEditMood] = useState((msg.mood || "").toLowerCase());
@@ -69,7 +68,7 @@ function MessageCard({ msg, onEdit, onRemove, auth }) {
             <div className="message-image">
               <img
                 // ✅ If DB stores just filename (e.g. "photo.png")
-                src={`${API_URL}${msg.image}`}
+                src={msg.image}
                 // ✅ If DB stores "/images/photo.png", use instead:
                 // src={`${API_URL}${msg.image}`}
                 alt="Kindness note"
